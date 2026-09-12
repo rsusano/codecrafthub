@@ -1,0 +1,172 @@
+[
+  {
+    "id": "5c784572-b562-43a7-8934-41fa2bfb87c4",
+    "name": "Next",
+    "description": "Take the next step in your professional growth and build the forward-thinking skills needed to thrive in an evolving world. Through practical insights and actionable strategies, this course prepares you to confidently navigate change and excel in whatever comes next.",
+    "target_date": "2026-09-12",
+    "status": "Not Started",
+    "priority": "Medium",
+    "notes": "",
+    "tags": [],
+    "modules": [],
+    "resources": [],
+    "created_at": "2026-09-12T15:38:55.025Z",
+    "updated_at": "2026-09-12T15:38:55.025Z"
+  },
+  {
+    "id": "50a79f48-b7d2-4bb0-9ad4-270e9d50093a",
+    "name": "AI Automation",
+    "description": "Master the fundamentals of AI-driven automation to streamline workflows, integrate large language models, and build intelligent software agents. Learn to leverage APIs, low-code tools, and custom scripts to automate complex business processes efficiently.",
+    "target_date": "2026-09-14",
+    "status": "Not Started",
+    "priority": "Medium",
+    "notes": "",
+    "tags": [
+      "certificate"
+    ],
+    "modules": [
+      {
+        "id": "0f7b6a8e-e21d-49b4-9027-55319d774be2",
+        "title": "Introduction to AI Automation and Workflow Design",
+        "done": false
+      },
+      {
+        "id": "e2edc99e-9d5a-43a2-a157-37249495a778",
+        "title": "Leveraging LLMs and APIs for Task Automation",
+        "done": false
+      },
+      {
+        "id": "f3b2119f-c019-4c5a-b0be-9b8cded59a2d",
+        "title": "Building No-Code and Low-Code AI Agents",
+        "done": false
+      },
+      {
+        "id": "cdbedf67-a8c5-4bbf-abb3-8e7458775b49",
+        "title": "Data Extraction and Web Scraping with AI",
+        "done": false
+      },
+      {
+        "id": "c6149eb1-099e-4cd9-a782-87bb86691bb9",
+        "title": "Deploying and Scaling Automated AI Pipelines",
+        "done": false
+      }
+    ],
+    "resources": [
+      {
+        "id": "35524391-7bdc-4eda-b5e4-c37282f896bc",
+        "title": "AI Automation Tutorial for Beginners",
+        "url": "https://www.youtube.com/results?search_query=AI%20Automation+tutorial",
+        "provider": "YouTube",
+        "note": "Provides a practical, visual introduction to creating automated workflows using AI tools and APIs."
+      },
+      {
+        "id": "efc24a57-f729-4fa0-a2c0-25acea6614f7",
+        "title": "IBM AI Engineering Professional Certificate",
+        "url": "https://www.coursera.org/search?query=AI%20Automation",
+        "provider": "Coursera",
+        "note": "Offers a recognized credential covering machine learning algorithms, deep learning, and deployment pipelines."
+      },
+      {
+        "id": "c6408c03-e977-4d19-afd5-1a7777efcd81",
+        "title": "Python for Automation – Full Course",
+        "url": "https://www.freecodecamp.org/news/search/?query=AI%20Automation",
+        "provider": "freeCodeCamp",
+        "note": "Teaches fundamental Python programming skills required for building custom AI automation scripts."
+      },
+      {
+        "id": "db1a22b4-6749-46d8-83e4-a31c3866520a",
+        "title": "OpenAI API Platform Documentation",
+        "url": "https://platform.openai.com/docs",
+        "provider": "Documentation",
+        "note": "Essential reference guide for integrating state-of-the-art language models into automated systems."
+      },
+      {
+        "id": "d966a3c0-7ff7-49ad-808a-f6b085306699",
+        "title": "LangChain Documentation",
+        "url": "https://docs.langchain.com/",
+        "provider": "Documentation",
+        "note": "Comprehensive guide for building context-aware, reasoning applications and complex AI agent chains."
+      }
+    ],
+    "created_at": "2026-09-12T16:14:03.494Z",
+    "updated_at": "2026-09-12T16:28:35.201Z"
+  },
+  {
+    "id": "4b163402-28f6-4249-9555-d0b0ca9d60c3",
+    "name": "Shopify Developer",
+    "description": "Master custom Shopify theme development, Liquid templating, and store customization using modern developer tools like Shopify CLI. Learn to build custom apps, integrate APIs, and extend Shopify stores to deliver high-performance e-commerce experiences.",
+    "target_date": "2026-09-15",
+    "status": "Not Started",
+    "priority": "Medium",
+    "notes": "",
+    "tags": [
+      "shopify developer"
+    ],
+    "modules": [
+      {
+        "id": "e883e7c1-a0d6-43f0-a445-675cf2cf21c4",
+        "title": "Introduction to Shopify Ecosystem and Liquid Syntax",
+        "done": false
+      },
+      {
+        "id": "e51527ba-6b89-426f-81a7-271d5409e97f",
+        "title": "Building Custom Shopify Themes with Shopify CLI and Dawn",
+        "done": false
+      },
+      {
+        "id": "86141289-e829-4285-a10a-acc0720e0671",
+        "title": "Shopify Theme App Extensions and Metafields",
+        "done": false
+      },
+      {
+        "id": "bf222a29-29e8-4641-be24-283ad29a2eae",
+        "title": "Developing Custom Apps with GraphQL and Storefront API",
+        "done": false
+      },
+      {
+        "id": "8ce58c44-ec4c-463e-b193-1cbc59e08e00",
+        "title": "Performance Optimization, Testing, and Store Deployment",
+        "done": false
+      }
+    ],
+    "resources": [
+      {
+        "id": "62a5f8de-1a70-4631-adc0-62f465cda2cc",
+        "title": "Shopify Dev Docs: Theme Development",
+        "url": "https://www.google.com/search?q=Shopify%20Developer%20Shopify%20Dev%20Docs%3A%20Theme%20Development%20Official%20guides%20and%20reference%20material%20for%20building%20themes%20with%20Liquid%20and%20Shopify%20CLI.+official+documentation",
+        "provider": "Documentation",
+        "note": "Official guides and reference material for building themes with Liquid and Shopify CLI."
+      },
+      {
+        "id": "20d015e3-1807-492f-a295-39444456b157",
+        "title": "Shopify App Development Tutorial",
+        "url": "https://www.youtube.com/results?search_query=Shopify%20Developer+tutorial",
+        "provider": "YouTube",
+        "note": "Comprehensive video guide covering custom app creation and API integrations."
+      },
+      {
+        "id": "f22514e3-0c76-4578-a691-92e0b95ddd45",
+        "title": "Building Shopify Themes with Liquid",
+        "url": "https://www.freecodecamp.org/news/search/?query=Shopify%20Developer",
+        "provider": "freeCodeCamp",
+        "note": "Hands-on tutorial explaining Shopify Liquid tags, objects, and filters."
+      },
+      {
+        "id": "b669f25c-5f20-4a53-9cd2-0f2ce2ef6ca6",
+        "title": "Shopify Storefront API & GraphQL Guide",
+        "url": "https://www.google.com/search?q=Shopify%20Developer%20Shopify%20Storefront%20API%20%26%20GraphQL%20Guide%20Essential%20reference%20for%20querying%20product%20data%20and%20creating%20headless%20commerce%20solutions.+official+documentation",
+        "provider": "Documentation",
+        "note": "Essential reference for querying product data and creating headless commerce solutions."
+      },
+      {
+        "id": "3d9dbdfa-e264-4ae6-b8e2-5cf90949b215",
+        "title": "Shopify Development for Beginners",
+        "url": "https://www.youtube.com/results?search_query=Shopify%20Developer+tutorial",
+        "provider": "YouTube",
+        "note": "Beginner-friendly walkthrough of setting up partner accounts and development stores."
+      }
+    ],
+    "created_at": "2026-09-12T16:36:19.603Z",
+    "updated_at": "2026-09-12T16:39:46.815Z"
+  }
+]
