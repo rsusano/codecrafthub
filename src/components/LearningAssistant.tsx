@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import MarkdownMessage from "@/components/MarkdownMessage";
+import AiQuotaBadge, { useAiQuota } from "@/components/AiQuotaBadge";
 import { useAuth } from "@/components/AuthProvider";
 import {
   clearChatHistory,
@@ -33,6 +34,7 @@ function createId(): string {
 
 export default function LearningAssistant() {
   const { persistWorkspace, user } = useAuth();
+  const { quota, refresh: refreshQuota, setQuota } = useAiQuota();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -107,6 +109,8 @@ export default function LearningAssistant() {
         }),
       });
       const data = await response.json();
+      if (data.quota) setQuota(data.quota);
+      else void refreshQuota();
       if (!response.ok) {
         throw new Error(data.error || "Assistant failed.");
       }
@@ -177,6 +181,7 @@ export default function LearningAssistant() {
                   ? "Chat syncs to your signed-in account and this device."
                   : "Chat is saved on this device. Sign in to sync across devices."}
               </p>
+              <AiQuotaBadge quota={quota} />
             </div>
             <div className="assistant-head-actions">
               <button

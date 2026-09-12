@@ -3,6 +3,7 @@ import {
   defaultWorkingResources,
   sanitizeSuggestedResources,
 } from "@/lib/learning-links";
+import { consumeAiQuota, formatResetIn } from "@/lib/ai-rate-limit";
 
 export const runtime = "nodejs";
 
@@ -205,6 +206,18 @@ async function suggestWithOpenAICompatible(
 }
 
 export async function POST(request: Request) {
+  const quota = await consumeAiQuota(request);
+  if (!quota.ok) {
+    return NextResponse.json(
+      {
+        error: quota.message || "AI limit reached.",
+        quota,
+        resetIn: formatResetIn(quota.resetInMs),
+      },
+      { status: 429 },
+    );
+  }
+
   let body: SuggestBody;
 
   try {
@@ -229,6 +242,7 @@ export async function POST(request: Request) {
       outline: fallbackOutline(name),
       resources: defaultWorkingResources(name),
       source: "fallback",
+      quota,
       message:
         "No API key found. Using local templates. Add GEMINI_API_KEY for live AI.",
     });
@@ -250,6 +264,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         outline: outline.length ? outline : fallbackOutline(name),
         source: resolved.provider,
+        quota,
       });
     }
 
@@ -257,6 +272,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         resources: parseResources(text, name),
         source: resolved.provider,
+        quota,
       });
     }
 
@@ -264,12 +280,14 @@ export async function POST(request: Request) {
       return NextResponse.json({
         ...parseFull(text, name),
         source: resolved.provider,
+        quota,
       });
     }
 
     return NextResponse.json({
       description: text.replace(/^["']|["']$/g, "").trim(),
       source: resolved.provider,
+      quota,
     });
   } catch (error) {
     return NextResponse.json({
@@ -277,6 +295,7 @@ export async function POST(request: Request) {
       outline: fallbackOutline(name),
       resources: defaultWorkingResources(name),
       source: "fallback",
+      quota,
       message: "AI request failed. Using local templates instead.",
       error: error instanceof Error ? error.message : "Unknown AI error",
     });

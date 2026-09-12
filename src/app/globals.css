@@ -212,6 +212,18 @@ body {
   font-size: 0.95rem;
 }
 
+.ai-quota-badge {
+  width: 100%;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.ai-quota-badge.empty {
+  color: #fca5a5;
+}
+
 .ai-bar {
   margin-bottom: 1rem;
   padding: 0.75rem;

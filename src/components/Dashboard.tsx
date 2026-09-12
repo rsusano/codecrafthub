@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import AuthBar from "@/components/AuthBar";
+import AiQuotaBadge, { useAiQuota } from "@/components/AiQuotaBadge";
 import { useAuth } from "@/components/AuthProvider";
 import {
   createLocalCourse,
@@ -89,6 +90,7 @@ function priorityClass(priority: CoursePriority): string {
 
 export default function Dashboard() {
   const { persistWorkspace, user } = useAuth();
+  const { quota, refresh: refreshQuota, setQuota } = useAiQuota();
   const [courses, setCourses] = useState<Course[]>([]);
   const [form, setForm] = useState<CourseInput>(emptyForm);
   const [tagDraft, setTagDraft] = useState("");
@@ -303,6 +305,8 @@ export default function Dashboard() {
         body: JSON.stringify({ name: form.name, mode }),
       });
       const data = await response.json();
+      if (data.quota) setQuota(data.quota);
+      else void refreshQuota();
       if (!response.ok) throw new Error(data.error || "AI suggestion failed.");
 
       setForm((prev) => {
@@ -556,6 +560,7 @@ export default function Dashboard() {
         </div>
 
         <div className="ai-bar">
+          <AiQuotaBadge quota={quota} />
           <button
             type="button"
             className="btn btn-success btn-sm"
