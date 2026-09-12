@@ -9,6 +9,13 @@ export type StoredChatMessage = {
 export const CHAT_STORAGE_KEY = "codecrafthub.chat.v1";
 export const MAX_STORED_MESSAGES = 80;
 
+export const DEFAULT_CHAT_WELCOME: StoredChatMessage = {
+  id: "welcome",
+  role: "assistant",
+  content:
+    "Hi — I’m Raf, your CodeCraftHub learning assistant with web-aware answers. Ask me anything about what to learn next, study plans, or where to learn. I’ll include clickable links for YouTube, freeCodeCamp, Coursera certificates, docs, and more.",
+};
+
 export function isValidStoredMessage(
   value: unknown,
 ): value is StoredChatMessage {

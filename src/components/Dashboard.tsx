@@ -1,6 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import AuthBar from "@/components/AuthBar";
+import { useAuth } from "@/components/AuthProvider";
+import {
+  createLocalCourse,
+  deleteLocalCourse,
+  loadLocalCourses,
+  replaceLocalCourses,
+  updateLocalCourse,
+} from "@/lib/courses-local";
+import {
+  DEFAULT_CHAT_WELCOME,
+  loadChatHistory,
+} from "@/lib/chat-storage";
 import type {
   Course,
   CourseInput,
@@ -75,6 +88,7 @@ function priorityClass(priority: CoursePriority): string {
 }
 
 export default function Dashboard() {
+  const { persistWorkspace, user } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
   const [form, setForm] = useState<CourseInput>(emptyForm);
   const [tagDraft, setTagDraft] = useState("");
@@ -168,14 +182,19 @@ export default function Dashboard() {
     };
   }, [selectedId]);
 
-  async function loadCourses() {
+  async function syncWorkspace(nextCourses: Course[]) {
+    setCourses(nextCourses);
+    await persistWorkspace({
+      courses: nextCourses,
+      chat_messages: loadChatHistory([DEFAULT_CHAT_WELCOME]),
+    });
+  }
+
+  function loadCourses() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/courses");
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Failed to load courses.");
-      setCourses(data.courses ?? []);
+      setCourses(loadLocalCourses());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load courses.");
     } finally {
@@ -184,7 +203,14 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    void loadCourses();
+    loadCourses();
+    function onReload() {
+      setCourses(loadLocalCourses());
+    }
+    window.addEventListener("codecrafthub:workspace-reloaded", onReload);
+    return () => {
+      window.removeEventListener("codecrafthub:workspace-reloaded", onReload);
+    };
   }, []);
 
   function resetForm() {
@@ -200,20 +226,21 @@ export default function Dashboard() {
     setMessage(null);
 
     try {
-      const response = await fetch(
-        editingId ? `/api/courses/${editingId}` : "/api/courses",
-        {
-          method: editingId ? "PUT" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
-        },
+      const result = editingId
+        ? updateLocalCourse(editingId, form)
+        : createLocalCourse(form);
+      if (result.error) throw new Error(result.error);
+      if ("notFound" in result && result.notFound) {
+        throw new Error("Course not found.");
+      }
+      setMessage(
+        editingId
+          ? "Course updated on this device."
+          : "Course added on this device.",
       );
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Save failed.");
-
-      setMessage(data.message || "Saved.");
       resetForm();
-      await loadCourses();
+      await syncWorkspace(loadLocalCourses());
+      if (user) setMessage((prev) => `${prev} Synced to your account.`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed.");
     } finally {
@@ -246,21 +273,12 @@ export default function Dashboard() {
     setError(null);
     setMessage(null);
     try {
-      const response = await fetch(`/api/courses/${id}`, { method: "DELETE" });
-      const raw = await response.text();
-      let data: { error?: string; message?: string } = {};
-      if (raw.trim()) {
-        try {
-          data = JSON.parse(raw) as { error?: string; message?: string };
-        } catch {
-          throw new Error("Delete failed (invalid server response).");
-        }
-      }
-      if (!response.ok) throw new Error(data.error || "Delete failed.");
-      setMessage(data.message || "Course removed.");
+      const result = deleteLocalCourse(id);
+      if (result.notFound) throw new Error("Course not found.");
+      setMessage("Course removed.");
       if (editingId === id) resetForm();
       if (selectedId === id) setSelectedId(null);
-      await loadCourses();
+      await syncWorkspace(loadLocalCourses());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Delete failed.");
     }
@@ -426,16 +444,11 @@ export default function Dashboard() {
     try {
       const text = await file.text();
       const parsed = JSON.parse(text) as Course[];
-      const response = await fetch("/api/courses", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ import: true, courses: parsed }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Import failed.");
-      setMessage(data.message || "Imported.");
+      const result = replaceLocalCourses(parsed);
+      if (result.error) throw new Error(result.error);
+      setMessage(`Imported ${result.courses.length} courses on this device.`);
       resetForm();
-      await loadCourses();
+      await syncWorkspace(result.courses);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Import failed.");
     }
@@ -459,17 +472,12 @@ export default function Dashboard() {
       resources: course.resources,
     };
 
-    const response = await fetch(`/api/courses/${course.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!response.ok) {
-      const data = await response.json();
-      setError(data.error || "Could not update module.");
+    const result = updateLocalCourse(course.id, payload);
+    if (result.error || result.notFound) {
+      setError(result.error || "Could not update module.");
       return;
     }
-    await loadCourses();
+    await syncWorkspace(loadLocalCourses());
   }
 
   return (
@@ -484,6 +492,7 @@ export default function Dashboard() {
           and where to learn — YouTube, freeCodeCamp, Coursera certificates, docs,
           and more.
         </p>
+        <AuthBar />
       </header>
 
       <section className="stats-grid">

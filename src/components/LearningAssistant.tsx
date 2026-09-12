@@ -2,22 +2,20 @@
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import MarkdownMessage from "@/components/MarkdownMessage";
+import { useAuth } from "@/components/AuthProvider";
 import {
   clearChatHistory,
+  DEFAULT_CHAT_WELCOME,
   loadChatHistory,
   saveChatHistory,
   type StoredChatMessage,
 } from "@/lib/chat-storage";
+import { loadLocalCourses } from "@/lib/courses-local";
 import type { ChatRole } from "@/lib/chat-types";
 
 type UiMessage = StoredChatMessage;
 
-const STARTER: UiMessage = {
-  id: "welcome",
-  role: "assistant",
-  content:
-    "Hi — I’m Raf, your CodeCraftHub learning assistant with web-aware answers. Ask me anything about what to learn next, study plans, or where to learn. I’ll include clickable links for YouTube, freeCodeCamp, Coursera certificates, docs, and more.",
-};
+const STARTER = DEFAULT_CHAT_WELCOME;
 
 const QUICK_PROMPTS = [
   "Where should I learn Next.js for free and for a certificate?",
@@ -34,6 +32,7 @@ function createId(): string {
 }
 
 export default function LearningAssistant() {
+  const { persistWorkspace, user } = useAuth();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -46,12 +45,25 @@ export default function LearningAssistant() {
   useEffect(() => {
     setMessages(loadChatHistory([STARTER]));
     setReady(true);
+    function onReload() {
+      setMessages(loadChatHistory([STARTER]));
+    }
+    window.addEventListener("codecrafthub:workspace-reloaded", onReload);
+    return () => {
+      window.removeEventListener("codecrafthub:workspace-reloaded", onReload);
+    };
   }, []);
 
   useEffect(() => {
     if (!ready) return;
     saveChatHistory(messages);
-  }, [messages, ready]);
+    if (user) {
+      void persistWorkspace({
+        courses: loadLocalCourses(),
+        chat_messages: messages,
+      });
+    }
+  }, [messages, ready, user, persistWorkspace]);
 
   useEffect(() => {
     if (!open) return;
@@ -126,7 +138,7 @@ export default function LearningAssistant() {
     }
   }
 
-  function clearChat() {
+  async function clearChat() {
     const hasHistory = messages.some((message) => message.id !== "welcome");
     if (
       hasHistory &&
@@ -137,6 +149,10 @@ export default function LearningAssistant() {
     clearChatHistory();
     setMessages([STARTER]);
     setError(null);
+    await persistWorkspace({
+      courses: loadLocalCourses(),
+      chat_messages: [STARTER],
+    });
   }
 
   return (
@@ -157,14 +173,16 @@ export default function LearningAssistant() {
               <p className="assistant-kicker">Always-on coach · by Raf</p>
               <h2>Learning Assistant</h2>
               <p className="assistant-persist-hint">
-                Chat is saved on this device. Use Clear to wipe it.
+                {user
+                  ? "Chat syncs to your signed-in account and this device."
+                  : "Chat is saved on this device. Sign in to sync across devices."}
               </p>
             </div>
             <div className="assistant-head-actions">
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
-                onClick={clearChat}
+                onClick={() => void clearChat()}
                 title="Clear saved chat history"
               >
                 Clear history
