@@ -37,7 +37,12 @@ type AuthContextValue = {
   syncing: boolean;
   authError: string | null;
   authMessage: string | null;
-  signInWithEmail: (email: string) => Promise<void>;
+  signInWithPassword: (email: string, password: string) => Promise<boolean>;
+  signUpWithPassword: (email: string, password: string) => Promise<boolean>;
+  signInWithGoogle: () => Promise<void>;
+  signInWithMagicLink: (email: string) => Promise<boolean>;
+  resetPassword: (email: string) => Promise<boolean>;
+  updatePassword: (password: string) => Promise<boolean>;
   signOut: () => Promise<void>;
   clearAuthFeedback: () => void;
   persistWorkspace: (payload: {
@@ -70,7 +75,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const cloudCourses = cloud?.courses ?? [];
       const cloudChat = cloud?.chat_messages ?? [];
 
-      // Prefer cloud when it has data; otherwise upload this device's local data.
       if (cloudCourses.length || cloudChat.length > 1) {
         saveLocalCourses(cloudCourses);
         saveChatHistory(cloudChat.length ? cloudChat : [DEFAULT_CHAT_WELCOME]);
@@ -87,7 +91,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
       }
 
-      setAuthMessage(`Signed in as ${nextUser.email}. Your courses & chat sync to your account.`);
+      setAuthMessage(
+        `Signed in as ${nextUser.email}. Your courses & chat sync to your account.`,
+      );
     } catch (error) {
       setAuthError(
         error instanceof Error
@@ -125,6 +131,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (event === "SIGNED_IN" && session?.user) {
         void hydrateFromCloud(session.user);
       }
+      if (event === "PASSWORD_RECOVERY") {
+        setAuthMessage("Choose a new password to finish resetting.");
+      }
     });
 
     return () => {
@@ -133,27 +142,134 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [configured, hydrateFromCloud]);
 
-  const signInWithEmail = useCallback(async (email: string) => {
+  const requireConfigured = useCallback(() => {
     if (!configured) {
       setAuthError("Cloud login is not configured yet on this deployment.");
-      return;
+      return false;
     }
+    return true;
+  }, [configured]);
+
+  const signInWithPassword = useCallback(
+    async (email: string, password: string) => {
+      if (!requireConfigured()) return false;
+      setAuthError(null);
+      setAuthMessage(null);
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (error) {
+        setAuthError(error.message);
+        return false;
+      }
+      setAuthMessage("Signed in successfully.");
+      return true;
+    },
+    [requireConfigured],
+  );
+
+  const signUpWithPassword = useCallback(
+    async (email: string, password: string) => {
+      if (!requireConfigured()) return false;
+      setAuthError(null);
+      setAuthMessage(null);
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) {
+        setAuthError(error.message);
+        return false;
+      }
+      if (data.session) {
+        setAuthMessage("Account created and signed in.");
+      } else {
+        setAuthMessage(
+          "Account created. Check your email to confirm, then sign in.",
+        );
+      }
+      return true;
+    },
+    [requireConfigured],
+  );
+
+  const signInWithGoogle = useCallback(async () => {
+    if (!requireConfigured()) return;
     setAuthError(null);
     setAuthMessage(null);
     const supabase = createClient();
-    const redirectTo = `${window.location.origin}/auth/callback`;
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
       options: {
-        emailRedirectTo: redirectTo,
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
-    if (error) {
-      setAuthError(error.message);
-      return;
-    }
-    setAuthMessage("Check your email for a magic link to finish signing in.");
-  }, [configured]);
+    if (error) setAuthError(error.message);
+  }, [requireConfigured]);
+
+  const signInWithMagicLink = useCallback(
+    async (email: string) => {
+      if (!requireConfigured()) return false;
+      setAuthError(null);
+      setAuthMessage(null);
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.trim(),
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) {
+        setAuthError(error.message);
+        return false;
+      }
+      setAuthMessage("Check your email for a magic link to finish signing in.");
+      return true;
+    },
+    [requireConfigured],
+  );
+
+  const resetPassword = useCallback(
+    async (email: string) => {
+      if (!requireConfigured()) return false;
+      setAuthError(null);
+      setAuthMessage(null);
+      const supabase = createClient();
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent("/auth/reset")}`,
+      });
+      if (error) {
+        setAuthError(error.message);
+        return false;
+      }
+      setAuthMessage("Password reset email sent. Check your inbox.");
+      return true;
+    },
+    [requireConfigured],
+  );
+
+  const updatePassword = useCallback(
+    async (password: string) => {
+      if (!requireConfigured()) return false;
+      setAuthError(null);
+      setAuthMessage(null);
+      const supabase = createClient();
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) {
+        setAuthError(error.message);
+        return false;
+      }
+      setAuthMessage("Password updated. You’re signed in.");
+      return true;
+    },
+    [requireConfigured],
+  );
 
   const signOut = useCallback(async () => {
     if (!configured) return;
@@ -162,7 +278,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const supabase = createClient();
     await supabase.auth.signOut();
     setUser(null);
-    setAuthMessage("Signed out. This browser still keeps its local courses & chat.");
+    setAuthMessage(
+      "Signed out. This browser still keeps its local courses & chat.",
+    );
   }, [configured]);
 
   const persistWorkspace = useCallback(
@@ -195,7 +313,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       syncing,
       authError,
       authMessage,
-      signInWithEmail,
+      signInWithPassword,
+      signUpWithPassword,
+      signInWithGoogle,
+      signInWithMagicLink,
+      resetPassword,
+      updatePassword,
       signOut,
       clearAuthFeedback: () => {
         setAuthError(null);
@@ -210,7 +333,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       syncing,
       authError,
       authMessage,
-      signInWithEmail,
+      signInWithPassword,
+      signUpWithPassword,
+      signInWithGoogle,
+      signInWithMagicLink,
+      resetPassword,
+      updatePassword,
       signOut,
       persistWorkspace,
     ],

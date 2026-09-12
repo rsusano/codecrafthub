@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
-import AuthBar from "@/components/AuthBar";
 import AiQuotaBadge, { useAiQuota } from "@/components/AiQuotaBadge";
 import { useAuth } from "@/components/AuthProvider";
 import {
@@ -496,7 +495,10 @@ export default function Dashboard() {
           and where to learn — YouTube, freeCodeCamp, Coursera certificates, docs,
           and more.
         </p>
-        <AuthBar />
+        <p className="guest-tip">
+          Guests can try everything on this browser. Use <strong>Sign in</strong>{" "}
+          (top right) to save courses & chat to your account.
+        </p>
       </header>
 
       <section className="stats-grid">

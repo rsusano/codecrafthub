@@ -70,7 +70,9 @@ On Vercel, add `GEMINI_API_KEY` under Project → Settings → Environment Varia
 
 1. Create a free [Supabase](https://supabase.com) project
 2. Run [`supabase/schema.sql`](./supabase/schema.sql) in the SQL editor
-3. Auth → Providers → Email enabled (magic link)
+3. Auth → Providers:
+   - **Email** enabled (password + magic link)
+   - **Google** enabled (add Google OAuth Client ID/Secret from Google Cloud Console)
 4. Auth → URL Configuration:
    - Site URL: `https://codecrafthub.vercel.app` (and `http://localhost:3000` for local)
    - Redirect URLs include `/auth/callback` for both origins
@@ -82,6 +84,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 Without these, the app still works in guest mode (browser-only save).
+
+Sign-in UI is in the **top-right** (email/password, Google, reset password).
 
 ## API
 

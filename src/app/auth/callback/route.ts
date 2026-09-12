@@ -5,7 +5,8 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/";
+  const nextRaw = searchParams.get("next") ?? "/";
+  const next = nextRaw.startsWith("/") ? nextRaw : "/";
 
   if (!isSupabaseConfigured()) {
     return NextResponse.redirect(`${origin}/?authError=not_configured`);
