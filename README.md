@@ -1,6 +1,12 @@
 # CodeCraftHub
 
+**by Rafael Susano**
+
 Learning management dashboard from **IBM Generative AI: Elevate your Software Development Career**, rebuilt as a stronger Next.js portfolio project.
+
+## Live demo
+
+**https://codecrafthub.vercel.app**
 
 You can honestly say this project:
 
@@ -32,12 +38,11 @@ You can honestly say this project:
 - TypeScript
 - Tailwind CSS
 - Route Handlers for CRUD + AI suggest
-- JSON file persistence (`data/courses.json`)
+- JSON file persistence (`data/courses.json`; on Vercel uses `/tmp` so create/update/delete work)
 
 ## Getting started
 
 ```bash
-cd courses/14-generative-ai/codecrafthub
 npm install
 npm run dev
 ```
@@ -56,6 +61,8 @@ GEMINI_MODEL=gemini-3.6-flash
 Gemini keys: https://aistudio.google.com/apikey
 
 `.env.local` is gitignored and will never be committed.
+
+On Vercel, add `GEMINI_API_KEY` under Project → Settings → Environment Variables, then redeploy.
 
 ## API
 
@@ -76,8 +83,10 @@ Part of Course 14 final project (**CodeCraftHub**). Coursera Mark is separate an
 
 ## Deploy notes
 
-`data/courses.json` is local-file storage. For Vercel production, swap to a hosted DB because serverless filesystems are ephemeral.
+Live site: **https://codecrafthub.vercel.app**
+
+Course data on Vercel is stored in `/tmp` (writable on serverless). It can reset when the serverless instance recycles — use **Export JSON** for backups.
 
 ## License
 
-MIT
+MIT © Rafael Susano — see [LICENSE](./LICENSE)

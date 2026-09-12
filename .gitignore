@@ -34,9 +34,15 @@ yarn-error.log*
 .env*
 !.env.example
 
+# Next.js local agent scaffolding (not part of the app)
+AGENTS.md
+CLAUDE.md
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel

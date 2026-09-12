@@ -247,7 +247,15 @@ export default function Dashboard() {
     setMessage(null);
     try {
       const response = await fetch(`/api/courses/${id}`, { method: "DELETE" });
-      const data = await response.json();
+      const raw = await response.text();
+      let data: { error?: string; message?: string } = {};
+      if (raw.trim()) {
+        try {
+          data = JSON.parse(raw) as { error?: string; message?: string };
+        } catch {
+          throw new Error("Delete failed (invalid server response).");
+        }
+      }
       if (!response.ok) throw new Error(data.error || "Delete failed.");
       setMessage(data.message || "Course removed.");
       if (editingId === id) resetForm();

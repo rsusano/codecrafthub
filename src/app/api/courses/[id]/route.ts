@@ -47,9 +47,21 @@ export async function PUT(request: Request, context: RouteContext) {
 
 export async function DELETE(_request: Request, context: RouteContext) {
   const { id } = await context.params;
-  const result = await deleteCourse(id);
-  if (result.notFound) {
-    return NextResponse.json({ error: "Course not found." }, { status: 404 });
+  try {
+    const result = await deleteCourse(id);
+    if (result.notFound) {
+      return NextResponse.json({ error: "Course not found." }, { status: 404 });
+    }
+    return NextResponse.json({ message: "Course removed successfully." });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Could not remove course. Storage may be read-only.",
+      },
+      { status: 500 },
+    );
   }
-  return NextResponse.json({ message: "Course removed successfully." });
 }

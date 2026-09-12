@@ -11,15 +11,31 @@ import type {
 import { COURSE_PRIORITIES, COURSE_STATUSES, RESOURCE_TYPES } from "./types";
 import { buildWorkingResourceUrl } from "./learning-links";
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const DATA_FILE = path.join(DATA_DIR, "courses.json");
+const BUNDLE_DIR = path.join(process.cwd(), "data");
+const BUNDLE_FILE = path.join(BUNDLE_DIR, "courses.json");
+const IS_VERCEL = Boolean(process.env.VERCEL);
+const DATA_DIR = IS_VERCEL ? "/tmp" : BUNDLE_DIR;
+const DATA_FILE = IS_VERCEL
+  ? path.join("/tmp", "codecrafthub-courses.json")
+  : BUNDLE_FILE;
 
 async function ensureStore(): Promise<void> {
-  await fs.mkdir(DATA_DIR, { recursive: true });
+  if (!IS_VERCEL) {
+    await fs.mkdir(DATA_DIR, { recursive: true });
+  }
+
   try {
     await fs.access(DATA_FILE);
   } catch {
-    await fs.writeFile(DATA_FILE, "[]", "utf8");
+    let seed = "[]";
+    if (IS_VERCEL) {
+      try {
+        seed = await fs.readFile(BUNDLE_FILE, "utf8");
+      } catch {
+        seed = "[]";
+      }
+    }
+    await fs.writeFile(DATA_FILE, seed, "utf8");
   }
 }
 
@@ -160,7 +176,11 @@ export async function listCourses(): Promise<Course[]> {
     }),
   );
   if (needsWrite) {
-    await writeCourses(courses);
+    try {
+      await writeCourses(courses);
+    } catch {
+      // Read-only / ephemeral hosts may block repair writes; still return courses.
+    }
   }
   return courses.sort(
     (a, b) =>
