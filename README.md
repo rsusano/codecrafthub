@@ -64,7 +64,8 @@ CodeCraftHub started as a simple course tracker and grew into a full learning wo
 
 ## Stack
 
-- **Next.js** (App Router) + **TypeScript** + **React**
+- **Next.js** (App Router) + **TypeScript** + **React** — UI and server (API routes)
+- **Node.js** — runtime for the Next.js server and API handlers
 - **Tailwind CSS**
 - Browser **localStorage** for guest courses and chat
 - **Supabase** Auth + Postgres for optional cloud sync
