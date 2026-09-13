@@ -68,7 +68,7 @@ CodeCraftHub started as a simple course tracker and grew into a full learning wo
 - **Tailwind CSS**
 - Browser **localStorage** for guest courses and chat
 - **Supabase** Auth + Postgres for optional cloud sync
-- **Gemini** for live AI
+- **Gemini** (Google AI Studio) for live AI
 - Deployed on **Vercel**
 
 ---
@@ -94,6 +94,8 @@ Copy `.env.example` → `.env.local` and fill what you need (see below).
 GEMINI_API_KEY=your_key
 GEMINI_MODEL=gemini-3.6-flash
 ```
+
+Get a free key: [Google AI Studio](https://aistudio.google.com/apikey)
 
 Without a key, the app still runs using local templates.
 
