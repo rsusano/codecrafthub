@@ -95,7 +95,7 @@ GEMINI_API_KEY=your_key
 GEMINI_MODEL=gemini-3.6-flash
 ```
 
-Provide your own Gemini API key (look up how to create one yourself). Without a key, the app still runs using local templates.
+Without a key, the app still runs using local templates.
 
 On Vercel: **Settings → Environment Variables** → add the same keys → **Redeploy**.
 
